@@ -44,6 +44,11 @@ class BeutyExceptions
 	protected $_theme = 'default';
 
 	/**
+	 * Pretty Exceptions
+	 */
+	protected $_uri = '/pretty-exceptions/';
+
+	/**
 	 * Flag to control that only one exception/error is show at time
 	 */
 	static protected $_showActive = false;
@@ -69,13 +74,23 @@ class BeutyExceptions
 	}
 
 	/**
+	 * Change the base uri for css/javascript sources
+	 *
+	 * @param string $uri
+	 */
+	public function setBaseUri($uri)
+	{
+		$this->_uri = $uri;
+	}
+
+	/**
 	 * Returns the css sources
 	 *
 	 * @return string
 	 */
 	public function getCssSources()
 	{
-		return '<link href="/pretty-exceptions/themes/'.$this->_theme.'.css" type="text/css" rel="stylesheet" />';
+		return '<link href="'.$this->_uri.'themes/'.$this->_theme.'.css" type="text/css" rel="stylesheet" />';
 	}
 
 	/**
@@ -87,9 +102,9 @@ class BeutyExceptions
 	{
 		return '
 		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-		<script type="text/javascript" src="/pretty-exceptions/prettify/prettify.js"></script>
-		<script type="text/javascript" src="/pretty-exceptions/js/pretty.js"></script>
-		<script type="text/javascript" src="/pretty-exceptions/js/jquery.scrollTo-min.js"></script>';
+		<script type="text/javascript" src="'.$this->_uri.'prettify/prettify.js"></script>
+		<script type="text/javascript" src="'.$this->_uri.'js/pretty.js"></script>
+		<script type="text/javascript" src="'.$this->_uri.'js/jquery.scrollTo-min.js"></script>';
 	}
 
 	/**
