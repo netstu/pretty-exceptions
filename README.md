@@ -1,5 +1,7 @@
 # Pretty Exceptions
 
+![Pretty-Exceptions](http://www.phalconphp.com/img/pretty.jpg)
+
 [Phalcon](http://phalconphp.com) is a web framework delivered as a C extension providing high
 performance and lower resource consumption.
 
@@ -91,4 +93,4 @@ $p->setTheme('default');
 
 ## Live Demo
 
-A live demo is available [here](http://test.phalconphp.com/exception.html)
+A live demo is available [here](http://test.phalconphp.com/exception.html) and [here](http://test.phalconphp.com/exception2.html)
