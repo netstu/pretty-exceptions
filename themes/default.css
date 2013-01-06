@@ -209,3 +209,8 @@ li.highlight {
 	padding: 10px;
 	font-size: 12px;
 }
+
+.version a
+{
+	color: #807B70;
+}

@@ -137,9 +137,27 @@ class PrettyExceptions
 	 */
 	public function getVersion()
 	{
+		$version = \Phalcon\Version::get();
+		$parts = explode(' ', $version);
 		return '<div class="version">
-			Phalcon Framework ' . \Phalcon\Version::get() . '
+			Phalcon Framework <a target="_new" href="http://docs.phalconphp.com/en/' .  $parts[0] . '/">' . $version . '</a>
 		</div>';
+	}
+
+	protected function _getArrayDump($argument)
+	{
+		if (count($argument) < 8) {
+			$dump = array();
+			foreach ($argument as $k => $v) {
+				if (is_scalar($v)) {
+					$dump[] = $k . ' => ' . $v;
+				} else {
+					$dump[] = $k . ' => ' . (is_array($v) ? ('Array(' . count($v) . ')') : ('Object(' . get_class($v) . ')'));
+				}
+			}
+			return join(', ', $dump);
+		}
+		return count($argument);
 	}
 
 	/**
@@ -153,7 +171,7 @@ class PrettyExceptions
 
 		echo '<tr><td align="right" valign="top" class="error-number">#', $n, '</td><td>';
 		if (isset($trace['class'])) {
-			if (preg_match('/Phalcon/', $trace['class'])) {
+			if (preg_match('/^Phalcon/', $trace['class'])) {
 				echo '<span class="error-class"><a target="_new" href="http://docs.phalconphp.com/en/latest/api/', str_replace('\\', '_', $trace['class']), '.html">', $trace['class'], '</a></span>';
 			} else {
 				$classReflection = new \ReflectionClass($trace['class']);
@@ -185,14 +203,33 @@ class PrettyExceptions
 			$arguments = array();
 			foreach ($trace['args'] as $argument) {
 				if (is_scalar($argument)) {
-					$arguments[] = '<span class="error-parameter">'.$argument.'</span>';
+
+					if (is_null($argument)) {
+						$arguments[] = '<span class="error-parameter">null</span>';
+						continue;
+					}
+
+					if (is_bool($argument)) {
+						if ($argument) {
+							$arguments[] = '<span class="error-parameter">true</span>';
+						} else {
+							$arguments[] = '<span class="error-parameter">null</span>';
+						}
+						continue;
+					}
+
+					$arguments[] = '<span class="error-parameter">' . $argument . '</span>';
 				} else {
 					if (is_object($argument)) {
 						$arguments[] = '<span class="error-parameter">Object(' . get_class($argument) . ')</span>';
+					} else {
+						if (is_array($argument)) {
+							$arguments[] = '<span class="error-parameter">Array(' . $this->_getArrayDump($argument) . ')</span>';
+						}
 					}
 				}
 			}
-			echo '('.join(', ', $arguments).')';
+			echo '(' . join(', ', $arguments) . ')';
 		}
 
 		if (isset($trace['file'])) {
