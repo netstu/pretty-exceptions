@@ -86,7 +86,7 @@ $p->showFiles(true);
 //Set whether show the complete file or just the relevant fragment
 $p->showFileFragment(true);
 
-//Change the CSS theme (default or night)
+//Change the CSS theme (default, night or minimalist)
 $p->setTheme('default');
 
 ```
