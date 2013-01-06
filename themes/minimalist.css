@@ -17,10 +17,13 @@
   +------------------------------------------------------------------------+
 */
 
+@import url(http://fonts.googleapis.com/css?family=Monda:400,700);
+@import url(http://fonts.googleapis.com/css?family=Source+Code+Pro);
+
 body
 {
-	font-family: Consolas,Lucida Console,Monaco,Andale Mono,"MS Gothic",monospace;
-	background: #EFEFEF;
+	font-family: Monda, Helvetica, arial, sans-serif;
+	background: #ffffff;
 }
 
 .str
@@ -80,10 +83,10 @@ body
 
 pre.prettyprint
 {
-	font-family: Monaco,Andale Mono,"MS Gothic",monospace;
+	font-family: 'Source Code Pro', Monaco,Andale Mono,"MS Gothic",monospace;
 	border: 1px solid #f1f1f1;
 	width: 99%;
-	font-size: 12px;
+	font-size: 10px;
 	letter-spacing: 1px;
 	font-weight: normal;
 }
@@ -115,7 +118,7 @@ li.highlight {
 
 .error-main
 {
-	background: #717171;
+	background: #36393B;
 	color: #ffffff;
 	padding: 10px;
 	padding-top: 14px;
@@ -136,7 +139,7 @@ li.highlight {
 
 .error-backtrace table
 {
-	background-color: #EEEEEE;
+	background-color: #ffffff;
 	border-radius: 5px;
 	margin-top: 5px;
 	width: 99%;
@@ -164,7 +167,8 @@ li.highlight {
 {
 	/*background: #1D1F22;*/
 	color: #eeeeee;
-	width: 1px;
+	display: none;
+	visibility: hidden;
 }
 
 .error-backtrace .error-file,
@@ -187,12 +191,13 @@ li.highlight {
 .error-backtrace .error-parameter
 {
 	color: #3B3130;
-	background: #DCDEE4;
+	font-style: italic;
 }
 
 .error-backtrace .error-function
 {
-	color: #6383A9;
+	color: #222222;
+	font-weight: bold;
 }
 
 .error-backtrace pre
@@ -205,7 +210,7 @@ li.highlight {
 	font-family: sans-serif;
 	text-align: right;
 	color: #797878;
-	background: #F7F7F7;
+	background: #ffffff;
 	padding: 10px;
 	font-size: 12px;
 }

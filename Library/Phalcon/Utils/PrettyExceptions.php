@@ -29,6 +29,11 @@ class PrettyExceptions
 {
 
 	/**
+	 * Print the backtrace
+	 */
+	protected $_showBackTrace = true;
+
+	/**
 	 * Show the application's code
 	 */
 	protected $_showFiles = true;
@@ -94,6 +99,16 @@ class PrettyExceptions
 	}
 
 	/**
+	 * Set if the exception/error backtrace must be shown
+	 *
+	 * @param boolean $showBackTrace
+	 */
+	public function showBackTrace($showBackTrace)
+	{
+		$this->_showBackTrace = $showBackTrace;
+	}
+
+	/**
 	 * Returns the css sources
 	 *
 	 * @return string
@@ -118,6 +133,118 @@ class PrettyExceptions
 	}
 
 	/**
+	 * Returns the current framework version
+	 */
+	public function getVersion()
+	{
+		return '<div class="version">
+			Phalcon Framework ' . \Phalcon\Version::get() . '
+		</div>';
+	}
+
+	/**
+	 * Shows a backtrace item
+	 *
+	 * @param int $n
+	 * @param array $trace
+	 */
+	protected function _showTraceItem($n, $trace)
+	{
+
+		echo '<tr><td align="right" valign="top" class="error-number">#', $n, '</td><td>';
+		if (isset($trace['class'])) {
+			if (preg_match('/Phalcon/', $trace['class'])) {
+				echo '<span class="error-class"><a target="_new" href="http://docs.phalconphp.com/en/latest/api/', str_replace('\\', '_', $trace['class']), '.html">', $trace['class'], '</a></span>';
+			} else {
+				$classReflection = new \ReflectionClass($trace['class']);
+				if ($classReflection->isInternal()) {
+					echo '<span class="error-class"><a target="_new" href="http://php.net/manual/en/class.', str_replace('_', '-', strtolower($trace['class'])), '.php">', $trace['class'], '</a></span>';
+				} else {
+					echo '<span class="error-class">', $trace['class'], '</span>';
+				}
+			}
+			echo $trace['type'];
+		}
+
+		if (isset($trace['class'])) {
+			echo '<span class="error-function">', $trace['function'], '</span>';
+		} else {
+			if (function_exists($trace['function'])) {
+				$functionReflection = new \ReflectionFunction($trace['function']);
+				if ($functionReflection->isInternal()) {
+					echo '<span class="error-function"><a target="_new" href="http://php.net/manual/en/function.', str_replace('_', '-', $trace['function']), '.php">', $trace['function'], '</a></span>';
+				} else {
+					echo '<span class="error-function">', $trace['function'], '</span>';
+				}
+			} else {
+				echo '<span class="error-function">', $trace['function'], '</span>';
+			}
+		}
+
+		if (isset($trace['args'])) {
+			$arguments = array();
+			foreach ($trace['args'] as $argument) {
+				if (is_scalar($argument)) {
+					$arguments[] = '<span class="error-parameter">'.$argument.'</span>';
+				} else {
+					if (is_object($argument)) {
+						$arguments[] = '<span class="error-parameter">Object(' . get_class($argument) . ')</span>';
+					}
+				}
+			}
+			echo '('.join(', ', $arguments).')';
+		}
+
+		if (isset($trace['file'])) {
+			echo '<br/><span class="error-file">', $trace['file'], ' (', $trace['line'], ')</span>';
+		}
+
+		echo '</td></tr>';
+
+		if ($this->_showFiles) {
+			if (isset($trace['file'])) {
+
+				echo '</table>';
+
+				$line = $trace['line'];
+				$lines = file($trace['file']);
+
+				if ($this->_showFileFragment) {
+					$numberLines = count($lines);
+					$firstLine = ($line - 7) < 1 ? 1 : $line - 7;
+					$lastLine = ($line + 5 > $numberLines ? $numberLines : $line + 5);
+					echo "<pre class='prettyprint highlight:" . $firstLine . ":" . $line . " linenums:" . $firstLine . "'>";
+				} else {
+					$firstLine = 1;
+					$lastLine = count($lines) - 1;
+					echo "<pre class='prettyprint highlight:" . $firstLine . ":" . $line . " linenums error-scroll'>";
+				}
+
+				for ($i = $firstLine; $i <= $lastLine; ++$i) {
+
+					if ($this->_showFileFragment) {
+						if ($i == $firstLine) {
+							if (preg_match('#\*\/$#', rtrim($lines[$i - 1]))) {
+								$lines[$i-1] = str_replace("* /", "  ", $lines[$i - 1]);
+							}
+						}
+					}
+
+					if ($lines[$i - 1] != PHP_EOL) {
+						$lines[$i - 1] = str_replace("\t", "  ", $lines[$i - 1]);
+						echo htmlentities($lines[$i - 1], ENT_COMPAT, 'UTF-8');
+					} else {
+						echo '&nbsp;' . "\n";
+					}
+				}
+				echo '</pre>';
+
+				echo '<table cellspacing="0">';
+			}
+		}
+	}
+
+	/**
 	 * Handles exceptions
 	 *
 	 * @param Exception $e
@@ -126,7 +253,9 @@ class PrettyExceptions
 	public function handle($e)
 	{
 
-		@ob_end_clean();
+		if (ob_get_level() > 0) {
+			ob_end_clean();
+		}
 
 		if (self::$_showActive) {
 			echo $e->getMessage();
@@ -135,93 +264,22 @@ class PrettyExceptions
 
 		self::$_showActive = true;
 
-		echo '<html><head><title>Exception - ', get_class($e), ': ', $e->getMessage(), '</title>'.$this->getCssSources().'</head><body>';
+		echo '<html><head><title>Exception - ', get_class($e), ': ', $e->getMessage(), '</title>', $this->getCssSources(), '</head><body>';
 
 		echo '<div class="error-main">
 			', get_class($e), ': ', $e->getMessage(), '
 			<br/><span class="error-file">', $e->getFile(), ' (', $e->getLine(), ')</span>
 		</div>';
 
-		echo '<div class="error-backtrace"><table cellspacing="0">';
-		foreach ($e->getTrace() as $n => $trace) {
-
-			echo '<tr><td align="right" valign="top" class="error-number">#', $n, '</td><td>';
-			if (isset($trace['class'])) {
-				if (preg_match('/Phalcon/', $trace['class'])) {
-					echo '<span class="error-class"><a target="_new" href="http://docs.phalconphp.com/en/latest/api/', str_replace('\\', '_', $trace['class']), '.html">', $trace['class'], '</a></span>', $trace['type'];
-				} else {
-					echo '<span class="error-class">', $trace['class'], '</span>', $trace['type'];
-				}
+		if ($this->_showBackTrace) {
+			echo '<div class="error-backtrace"><table cellspacing="0">';
+			foreach ($e->getTrace() as $n => $trace) {
+				$this->_showTraceItem($n, $trace);
 			}
-
-			echo '<span class="error-function">', $trace['function'], '</span>';
-			if (isset($trace['args'])) {
-				$arguments = array();
-				foreach ($trace['args'] as $argument) {
-					if (is_scalar($argument)) {
-						$arguments[] = '<span class="error-parameter">'.$argument.'</span>';
-					} else {
-						if (is_object($argument)) {
-							$arguments[] = '<span class="error-parameter">Object(' . get_class($argument) . ')</span>';
-						}
-					}
-				}
-				echo '('.join(', ', $arguments).')';
-			}
-			if (isset($trace['file'])) {
-				echo '<br/><span class="error-file">', $trace['file'], ' (', $trace['line'], ')</span>';
-			}
-			echo '</td></tr>';
-
-			if ($this->_showFiles) {
-				if (isset($trace['file'])) {
-
-					echo '</table>';
-
-					$line = $trace['line'];
-					$lines = file($trace['file']);
-
-					if ($this->_showFileFragment) {
-						$numberLines = count($lines);
-						$firstLine = ($line - 7) < 1 ? 1 : $line - 7;
-						$lastLine = ($line + 5 > $numberLines ? $numberLines : $line + 5);
-						echo "<pre class='prettyprint highlight:".$firstLine.":".$line." linenums:".$firstLine."'>";
-					} else {
-						$firstLine = 1;
-						$lastLine = count($lines) - 1;
-						echo "<pre class='prettyprint highlight:".$firstLine.":".$line." linenums error-scroll'>";
-					}
-
-					for ($i = $firstLine; $i <= $lastLine; ++$i) {
-
-						if ($this->_showFileFragment) {
-							if ($i == $firstLine) {
-								if (preg_match('#\*\/$#', rtrim($lines[$i - 1]))) {
-									$lines[$i-1] = str_replace("* /", "  ", $lines[$i - 1]);
-								}
-							}
-						}
-
-						if ($lines[$i - 1] != PHP_EOL) {
-							$lines[$i - 1] = str_replace("\t", "  ", $lines[$i - 1]);
-							echo htmlentities($lines[$i - 1], ENT_COMPAT, 'UTF-8');
-						} else {
-							echo '&nbsp;' . "\n";
-						}
-					}
-					echo '</pre>';
-
-					echo '<table cellspacing="0">';
-				}
-			}
+			echo '</table></div>';
 		}
-		echo '</table></div>
 
-		<div class="version">
-			Phalcon Framework ' . \Phalcon\Version::get() . '
-		</div>
-
-		';
+		echo $this->getVersion();
 
 		echo $this->getJsSources() . '</body></html>';
 
@@ -241,109 +299,46 @@ class PrettyExceptions
 	public function handleError($errorCode, $errorMessage, $errorFile, $errorLine)
 	{
 
-		@ob_end_clean();
+		if (ob_get_level() > 0) {
+			ob_end_clean();
+		}
 
 		if (self::$_showActive) {
 			echo $errorMessage;
-			return;
+			return false;
+		}
+
+		if (!(error_reporting() & $errorCode)) {
+			return false;
 		}
 
 		self::$_showActive = true;
 
-		echo '<html><head><title>Exception - ', $errorMessage, '</title>'.$this->getCssSources().'</head><body>';
+		echo '<html><head><title>Exception - ', $errorMessage, '</title>', $this->getCssSources(), '</head><body>';
 
-		echo '<div class="error-main">', $errorMessage, '</div>';
+		echo '<div class="error-main">
+			', $errorMessage, '
+			<br/><span class="error-file">', $errorFile, ' (', $errorLine, ')</span>
+		</div>';
 
-		echo '<div class="error-backtrace"><table cellspacing="0">';
-		foreach (debug_backtrace() as $n => $trace) {
-
-			if ($n == 0) {
-				continue;
-			}
-
-			echo '<tr><td align="right" valign="top" class="error-number">#', $n, '</td><td>';
-			if (isset($trace['class'])) {
-				if (preg_match('/Phalcon/', $trace['class'])) {
-					echo '<span class="error-class"><a target="_new" href="http://docs.phalconphp.com/en/latest/api/', str_replace('\\', '_', $trace['class']), '.html">', $trace['class'], '</a></span>', $trace['type'];
-				} else {
-					echo '<span class="error-class">', $trace['class'], '</span>', $trace['type'];
+		if ($this->_showBackTrace) {
+			echo '<div class="error-backtrace"><table cellspacing="0">';
+			foreach (debug_backtrace() as $n => $trace) {
+				if ($n == 0) {
+					continue;
 				}
+				$this->_showTraceItem($n, $trace);
 			}
-
-			echo '<span class="error-function">', $trace['function'], '</span>';
-			if (isset($trace['args'])) {
-				$arguments = array();
-				foreach ($trace['args'] as $argument) {
-					if (is_scalar($argument)) {
-						$arguments[] = '<span class="error-parameter">'.$argument.'</span>';
-					} else {
-						if (is_object($argument)) {
-							$arguments[] = '<span class="error-parameter">Object(' . get_class($argument) . ')</span>';
-						}
-					}
-				}
-				echo '(' . join(', ', $arguments) . ')';
-			}
-			if (isset($trace['file'])) {
-				echo '<br/><span class="error-file">', $trace['file'], ' (', $trace['line'], ')</span>';
-			}
-			echo '</td></tr>';
-
-			if ($this->_showFiles) {
-				if (isset($trace['file'])) {
-
-					echo '</table>';
-
-					$line = $trace['line'];
-					$lines = file($trace['file']);
-
-					if ($this->_showFileFragment) {
-						$numberLines = count($lines);
-						$firstLine = ($line - 7) < 1 ? 1 : $line - 7;
-						$lastLine = ($line + 5 > $numberLines ? $numberLines : $line + 5);
-						echo "<pre class='prettyprint highlight:".$firstLine.":".$line." linenums:".$firstLine."'>";
-					} else {
-						$firstLine = 1;
-						$lastLine = count($lines)-1;
-						echo "<pre class='prettyprint highlight:".$firstLine.":".$line." linenums error-scroll'>";
-					}
-
-					for ($i = $firstLine; $i <= $lastLine; ++$i) {
-
-						if ($this->_showFileFragment) {
-							if ($i == $firstLine) {
-								if (preg_match('#\*\/$#', rtrim($lines[$i-1]))) {
-									$lines[$i-1] = str_replace("* /", "  ", $lines[$i-1]);
-								}
-							}
-						}
-
-						if ($lines[$i-1] != PHP_EOL) {
-							$lines[$i-1] = str_replace("\t", "  ", $lines[$i-1]);
-							echo htmlentities($lines[$i-1], ENT_COMPAT, 'UTF-8');
-						} else {
-							echo '&nbsp;' . "\n";
-						}
-					}
-					echo '</pre>';
-
-					echo '<table cellspacing="0">';
-				}
-			}
+			echo '</table></div>';
 		}
-		echo '</table></div>
 
-		<div class="version">
-			Phalcon Framework ' . \Phalcon\Version::get() . '
-		</div>
-
-		';
+		echo $this->getVersion();
 
 		echo $this->getJsSources() . '</body></html>';
 
 		self::$_showActive = false;
 
-		return false;
+		return true;
 	}
 
 }

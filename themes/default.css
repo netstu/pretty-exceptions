@@ -50,7 +50,7 @@ body
 
 .pun
 {
-	color: #F1F2F3;
+	color: #dadada;
 }
 
 .pln
@@ -111,7 +111,7 @@ li.L1, li.L3, li.L5, li.L7, li.L9
 }
 
 li.highlight {
-	background: #111111;
+	background: #1a1a1a;
 }
 
 .error-main

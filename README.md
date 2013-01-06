@@ -59,10 +59,6 @@ Listen for user errors/warnings/notices:
 
 set_error_handler(function($errorCode, $errorMessage, $errorFile, $errorLine)
 {
-	if (!(error_reporting() & $errorCode)) {
-       	return;
-    }
-
 	$p = new \Phalcon\Utils\PrettyExceptions();
 	return $p->handleError($errorCode, $errorMessage, $errorFile, $errorLine);
 });
@@ -80,6 +76,9 @@ $p = new \Phalcon\Utils\PrettyExceptions();
 //Change the base uri for static resources
 $p->setBaseUri('/');
 
+//Set if the backtrace must be shown
+$p->showBacktrace(true);
+
 //Set whether if open the user files and show its code
 $p->showFiles(true);
 
@@ -88,6 +87,9 @@ $p->showFileFragment(true);
 
 //Change the CSS theme (default, night or minimalist)
 $p->setTheme('default');
+
+//Handle the error/exception
+//...
 
 ```
 
