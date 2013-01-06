@@ -144,15 +144,35 @@ class PrettyExceptions
 		</div>';
 	}
 
-	protected function _getArrayDump($argument)
+	protected function _getArrayDump($argument, $n = 0)
 	{
-		if (count($argument) < 8) {
+		if ($n < 3 && count($argument) > 0 && count($argument) < 8) {
 			$dump = array();
 			foreach ($argument as $k => $v) {
 				if (is_scalar($v)) {
-					$dump[] = $k . ' => ' . $v;
+					if ($v === '') {
+						$dump[] = $k . ' => (empty string)';
+					} else {
+						$dump[] = $k . ' => ' . $v;
+					}
 				} else {
-					$dump[] = $k . ' => ' . (is_array($v) ? ('Array(' . count($v) . ')') : ('Object(' . get_class($v) . ')'));
+
+					if (is_array($v)) {
+						$dump[] = $k . ' => Array(' . $this->_getArrayDump($v, $n + 1) . ')';
+						continue;
+					}
+
+					if (is_object($v)) {
+						$dump[] = $k . ' => Object(' . get_class($v) . ')';
+						continue;
+					}
+
+					if (is_null($v)) {
+						$dump[] = $k . ' => null';
+						continue;
+					}
+
+					$dump[] = $k . ' => '.$v;
 				}
 			}
 			return join(', ', $dump);
@@ -204,11 +224,6 @@ class PrettyExceptions
 			foreach ($trace['args'] as $argument) {
 				if (is_scalar($argument)) {
 
-					if (is_null($argument)) {
-						$arguments[] = '<span class="error-parameter">null</span>';
-						continue;
-					}
-
 					if (is_bool($argument)) {
 						if ($argument) {
 							$arguments[] = '<span class="error-parameter">true</span>';
@@ -221,10 +236,19 @@ class PrettyExceptions
 					$arguments[] = '<span class="error-parameter">' . $argument . '</span>';
 				} else {
 					if (is_object($argument)) {
-						$arguments[] = '<span class="error-parameter">Object(' . get_class($argument) . ')</span>';
+						if (method_exists($argument, 'dump')) {
+							$arguments[] = '<span class="error-parameter">Object(' . get_class($argument) . ': ' . $this->_getArrayDump($argument->dump()) . ')</span>';
+						} else {
+							$arguments[] = '<span class="error-parameter">Object(' . get_class($argument) . ')</span>';
+						}
 					} else {
 						if (is_array($argument)) {
 							$arguments[] = '<span class="error-parameter">Array(' . $this->_getArrayDump($argument) . ')</span>';
+						} else {
+							if (is_null($argument)) {
+								$arguments[] = '<span class="error-parameter">null</span>';
+								continue;
+							}
 						}
 					}
 				}
