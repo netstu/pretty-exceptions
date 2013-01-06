@@ -20,17 +20,17 @@
 body
 {
 	font-family: Consolas,Lucida Console,Monaco,Andale Mono,"MS Gothic",monospace;
-	background: #FBF6EF;
+	background: #EFEFEF;
 }
 
 .str
 {
-	color: #dcc175;
+	color: #B1E2F0;
 }
 
 .kwd
 {
-	color: #f386ac;
+	color: #D0885E;
 }
 
 .com
@@ -80,7 +80,7 @@ body
 
 pre.prettyprint
 {
-	font-family: Consolas,Lucida Console,Monaco,Andale Mono,"MS Gothic",monospace;
+	font-family: Monaco,Andale Mono,"MS Gothic",monospace;
 	border: 0px solid #888;
 	margin-left: 5px;
 	width: 99%;
@@ -95,8 +95,13 @@ ol.linenums
 	margin-bottom: 0;
 }
 
-.prettyprint {
+.prettyprint
+{
 	background-color: #2f2f2f;
+}
+
+.prettyprint li {
+	font-size: 12px;
 }
 
 li.L0, li.L1, li.L2, li.L3, li.L4, li.L5, li.L6, li.L7, li.L8, li.L9
@@ -111,13 +116,13 @@ li.L1, li.L3, li.L5, li.L7, li.L9
 }
 
 li.highlight {
-	background: #111111;
+	background: #222222;
 }
 
 .error-main
 {
-	background: #DCA56D;
-	color: #ffffff;
+	background: #C23A66;
+	color: #FBC8DC;
 	padding: 10px;
 	padding-top: 14px;
 	border-radius: 5px;
@@ -137,7 +142,7 @@ li.highlight {
 
 .error-backtrace table
 {
-	background-color: #FBF6EF;
+	background-color: #E2E5E8;
 	border-radius: 5px;
 	margin-top: 5px;
 	width: 99%;
@@ -177,7 +182,7 @@ li.highlight {
 
 .error-main .error-file
 {
-	color: #fafafa;
+	color: #FBC8DC;
 }
 
 .error-backtrace .error-class
@@ -187,12 +192,13 @@ li.highlight {
 
 .error-backtrace .error-parameter
 {
-	color: #807B70;
+	color: #3B3130;
+	background: #DCDEE4;
 }
 
 .error-backtrace .error-function
 {
-	color: #6EAE9B;
+	color: #6383A9;
 }
 
 .error-backtrace pre
@@ -204,8 +210,8 @@ li.highlight {
 {
 	font-family: sans-serif;
 	text-align: right;
-	color: #807B70;
-	background: #EDE9DF;
+	color: #797878;
+	background: #F7F7F7;
 	padding: 10px;
 	font-size: 12px;
 }

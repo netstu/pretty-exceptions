@@ -25,7 +25,8 @@ require __DIR__.'/Library/Phalcon/Utils/PrettyExceptions.php';
 /**
  * Sets the exception handler
  */
-set_exception_handler(function($e){
+set_exception_handler(function($e)
+{
 	$p = new PrettyExceptions();
 	return $p->handle($e);
 });

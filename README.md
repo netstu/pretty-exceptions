@@ -19,7 +19,7 @@ require '/path/to/pretty-exceptions/loader.php';
 
 ## Manual include
 
-Or you can include the utility
+Or you could include the utility manually or via an autoloader:
 
 ```php
 
@@ -79,10 +79,13 @@ $p = new \Phalcon\Utils\PrettyExceptions();
 $p->setBaseUri('/');
 
 //Set whether if open the user files and show its code
-$p->setShowFiles(true);
+$p->showFiles(true);
 
 //Set whether show the complete file or just the relevant fragment
-$p->setShowFiles(true);
+$p->showFileFragment(true);
+
+//Change the CSS theme (default or night)
+$p->setTheme('default');
 
 ```
 

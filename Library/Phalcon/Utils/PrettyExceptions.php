@@ -58,7 +58,7 @@ class PrettyExceptions
 	 *
 	 * @param boolean $showFiles
 	 */
-	public function setShowFiles($showFiles)
+	public function showFiles($showFiles)
 	{
 		$this->_showFiles = $showFiles;
 	}
@@ -100,7 +100,7 @@ class PrettyExceptions
 	 */
 	public function getCssSources()
 	{
-		return '<link href="'.$this->_uri.'themes/'.$this->_theme.'.css" type="text/css" rel="stylesheet" />';
+		return '<link href="' . $this->_uri . 'themes/' . $this->_theme . '.css" type="text/css" rel="stylesheet" />';
 	}
 
 	/**
@@ -112,9 +112,9 @@ class PrettyExceptions
 	{
 		return '
 		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-		<script type="text/javascript" src="'.$this->_uri.'prettify/prettify.js"></script>
-		<script type="text/javascript" src="'.$this->_uri.'js/pretty.js"></script>
-		<script type="text/javascript" src="'.$this->_uri.'js/jquery.scrollTo-min.js"></script>';
+		<script type="text/javascript" src="' . $this->_uri . 'prettify/prettify.js"></script>
+		<script type="text/javascript" src="' . $this->_uri . 'js/pretty.js"></script>
+		<script type="text/javascript" src="' . $this->_uri . 'js/jquery.scrollTo-min.js"></script>';
 	}
 
 	/**
@@ -137,7 +137,10 @@ class PrettyExceptions
 
 		echo '<html><head><title>Exception - ', get_class($e), ': ', $e->getMessage(), '</title>'.$this->getCssSources().'</head><body>';
 
-		echo '<div class="error-main">', get_class($e), ': ', $e->getMessage(), '</div>';
+		echo '<div class="error-main">
+			', get_class($e), ': ', $e->getMessage(), '
+			<br/><span class="error-file">', $e->getFile(), ' (', $e->getLine(), ')</span>
+		</div>';
 
 		echo '<div class="error-backtrace"><table cellspacing="0">';
 		foreach ($e->getTrace() as $n => $trace) {
@@ -203,7 +206,7 @@ class PrettyExceptions
 							$lines[$i - 1] = str_replace("\t", "  ", $lines[$i - 1]);
 							echo htmlentities($lines[$i - 1], ENT_COMPAT, 'UTF-8');
 						} else {
-							echo '&nbsp;'."\n";
+							echo '&nbsp;' . "\n";
 						}
 					}
 					echo '</pre>';
@@ -215,12 +218,12 @@ class PrettyExceptions
 		echo '</table></div>
 
 		<div class="version">
-			Phalcon Framework '.\Phalcon\Version::get().'
+			Phalcon Framework ' . \Phalcon\Version::get() . '
 		</div>
 
 		';
 
-		echo $this->getJsSources().'</body></html>';
+		echo $this->getJsSources() . '</body></html>';
 
 		self::$_showActive = false;
 
@@ -279,7 +282,7 @@ class PrettyExceptions
 						}
 					}
 				}
-				echo '('.join(', ', $arguments).')';
+				echo '(' . join(', ', $arguments) . ')';
 			}
 			if (isset($trace['file'])) {
 				echo '<br/><span class="error-file">', $trace['file'], ' (', $trace['line'], ')</span>';
@@ -319,7 +322,7 @@ class PrettyExceptions
 							$lines[$i-1] = str_replace("\t", "  ", $lines[$i-1]);
 							echo htmlentities($lines[$i-1], ENT_COMPAT, 'UTF-8');
 						} else {
-							echo '&nbsp;'."\n";
+							echo '&nbsp;' . "\n";
 						}
 					}
 					echo '</pre>';
@@ -331,12 +334,12 @@ class PrettyExceptions
 		echo '</table></div>
 
 		<div class="version">
-			Phalcon Framework '.\Phalcon\Version::get().'
+			Phalcon Framework ' . \Phalcon\Version::get() . '
 		</div>
 
 		';
 
-		echo $this->getJsSources().'</body></html>';
+		echo $this->getJsSources() . '</body></html>';
 
 		self::$_showActive = false;
 
